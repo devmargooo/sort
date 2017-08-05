@@ -1,0 +1,44 @@
+html{
+  font-size: 62.5%;
+  height: 100%;
+}
+
+body{
+  width: 100%;
+  height: 100%;
+}
+
+.body-wrapper{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  max-width: 1920px;
+  min-width: 1200px;
+  margin: 0 auto;
+  background: url('../img/bg.jpg');
+  font-family: $f-primary;
+}
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.text-hidden {
+  display: block;
+  text-indent: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.link-animated{
+  transition: all 0.4s ease;
+  &:active {
+    opacity: 0.5;
+  }
+}
+
+
