@@ -13,6 +13,7 @@
     }
 
     function Element(value) {
+        let el;
 
         if (value == undefined) {
             console.log("value is undefined");
@@ -22,15 +23,22 @@
         if (value < MIN_VALUE) value = MIN_VALUE;
         if (value > MAX_VALUE) value = MAX_VALUE;
 
-        let el = document.createElement("div");
-        el.classList = "element";
-        el.textContent = value;
 
-        let scale = 1 + (MAX_SCALE * value/100);
-        el.style.width = 5 * scale + 'rem';
-        el.style.height = 5 * scale + 'rem';
-        el.style.lineHeight = 5 * scale + 'rem';
-        return el;
+        this.render = function () {
+            el = document.createElement("div");
+            el.classList = "element";
+            el.textContent = value;
+
+            let scale = 1 + (MAX_SCALE * value/100);
+            el.style.width = 5 * scale + 'rem';
+            el.style.height = 5 * scale + 'rem';
+            el.style.lineHeight = 5 * scale + 'rem';
+            return el;
+        };
+
+        this.select = function () {
+            el.classList = "element--active";
+        };
     }
 
     function Chain(length) {
@@ -47,7 +55,7 @@
         for (let i = 0; i < length; i ++){
             let el = new Element(numbers[i]);
             elements.push(el);
-            root.appendChild(el);
+            root.appendChild(el.render());
         }
         function clearSelection() {
             let selected = document.querySelectorAll(".element--active");
@@ -57,8 +65,8 @@
         }
         function select(index) {
             clearSelection();
-            elements[index].classList = "element--active";
-            elements[index + 1].classList = "element--active";
+            elements[index].select();
+            elements[index + 1].select();
         }
         
         function iterate(index) {
@@ -66,8 +74,9 @@
             let promise = new Promise((resolve, reject) => {
 
                 let resolveTimer = setTimeout(() => {
-                    select(index++);
+                    select(index);
                     clearTimeout(rejectTimer);
+                    index++;
                     resolve("result");
                 }, 1000);
                 let rejectTimer = setTimeout(() => {
