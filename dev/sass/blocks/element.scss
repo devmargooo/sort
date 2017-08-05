@@ -8,6 +8,7 @@
   font-size: $element-text-size;
   background: $c-primary;
   opacity: 0.6;
+  transition: all 0.5s;
   animation: appear 1s;
 }
 

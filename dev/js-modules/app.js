@@ -2,6 +2,8 @@
     var MAX_VALUE = 100,
         MIN_VALUE = 0,
         MAX_SCALE = 2,
+        START_ITERATION = 0,
+        index,
         root = document.querySelector(".body-wrapper");
 
     function randomInteger(min, max) {
@@ -47,18 +49,24 @@
             elements.push(el);
             root.appendChild(el);
         }
-
-        function choose(index) {
+        function clearSelection() {
+            let selected = document.querySelectorAll(".element--active");
+            for (let i = 0; i<selected.length; i++){
+                selected[i].classList = "element";
+            }
+        }
+        function select(index) {
+            clearSelection();
             elements[index].classList = "element--active";
             elements[index + 1].classList = "element--active";
         }
         
-        function iterate() {
-            var index = 0;
+        function iterate(index) {
+            if (index >= length - 1) return;
             let promise = new Promise((resolve, reject) => {
 
                 let resolveTimer = setTimeout(() => {
-                    choose(index++);
+                    select(index++);
                     clearTimeout(rejectTimer);
                     resolve("result");
                 }, 1000);
@@ -69,14 +77,14 @@
 
             }).then(
                 result => {
-
+                    iterate(index);
                 },
                 error => {
                     console.log("Rejected: " + error);
                 }
             );
         }
-        iterate();
+        iterate(0);
 
     }
 
