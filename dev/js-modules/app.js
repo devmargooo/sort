@@ -3,7 +3,6 @@
         MIN_VALUE = 0,
         MAX_SCALE = 2,
         INITIAL_SIZE = 6,
-        START_ITERATION = 0,
         index,
         root = document.querySelector(".body-wrapper");
 
@@ -15,9 +14,9 @@
 
     function Element(value) {
         let el,
-            leftInitial,
-            tempOffsetLeft = 0,
-            offsetLeft = 0,
+            leftInitial,//Координата слева
+            tempOffsetLeft = 0,//Отступ от координаты слева
+            offsetLeft = 0,//Отступ от координаты слева
             self = this;
 
         if (value == undefined) {
@@ -61,7 +60,7 @@
 
                 leftInitial = self.getLeftInitial();
 
-                let speed = 500;
+                let speed = 500;//скорость анимации движения
 
                 let start = Date.now();
                 let timer = setInterval(function() {
@@ -136,7 +135,7 @@
 
         let numbers = [],
             elements = [],
-            stopValue = length - 1;
+            stopValue = length - 1;//отсортированная часть массива
         outer: for (let i = 0; i < length;){
             let number = randomInteger(MIN_VALUE, MAX_VALUE);
             for (let k = 0; k < numbers.length; k++){
@@ -165,7 +164,6 @@
         
         function bubble(index) {
             let promise = new Promise((resolve, reject) => {
-                console.log("BUBBLE");
 
                 let biggerLeft = elements[index].getLeftInitial();
                 let smallerLeft = elements[index + 1].getLeftInitial();
@@ -183,7 +181,6 @@
                 Promise.all([promise1, promise2])
                     .then(
                         result => {
-                            console.log("animation done!");
                             resolve("result");
                         },
                         error => {
@@ -197,15 +194,14 @@
         }
 
         function iterate(index) {
-            if (index > stopValue) {
-                console.log("index is more than stopValue");
+            if (index > stopValue) {//если дошли до отсортированной части массива - выходим из функции
                 return;
             }
-            if (stopValue <= 0 || length === 1) {
-                elements[0].disactive();
+            if (stopValue <= 0 || length === 1) {//если у нас осталась часть из одного элемента -
+                elements[0].disactive();        //подсвечиваем ее как отсортированную и выходим
                 return;
             }
-            console.log("start with index " + index);
+
             let promise = new Promise((resolve, reject) => {
 
                 let rejectTimer = setTimeout(() => {
@@ -217,7 +213,6 @@
                     let promise = bubble(index)
                         .then(
                             result => {
-                                console.log("bubbling ok");
                                 clearTimeout(rejectTimer);
                                 index++;
                                 resolve("result");
@@ -228,7 +223,6 @@
                         );
                     return;
                 } else {
-                    console.log("it's not bubble");
                     clearTimeout(rejectTimer);
                     index++;
                     resolve("result");
@@ -242,13 +236,11 @@
                         clearSelection();
                         elements[stopValue].disactive();
                         stopValue--;
-                        console.log("stop");
                         let iterationTimer = setTimeout(() => {
                             iterate(0);
                         }, 800);
                     }
                     let iterationTimer = setTimeout(() => {
-                        console.log('next iteration');
                         iterate(index);
                     }, 800);
                 },
