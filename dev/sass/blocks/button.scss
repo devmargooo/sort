@@ -1,0 +1,23 @@
+.button{
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  width: 10rem;
+  height: 5rem;
+  line-height: 5rem;
+  text-align: center;
+  color: $c-secondary;
+  border-radius: 0.5rem;
+  font-size: 1.5rem;
+  background: $c-primary;
+  opacity: 0.6;
+  transition: all 0.8s;
+
+  &:hover, &:focus{
+    background: $c-accent;
+    color: $c-primary;
+  }
+  &:active{
+    opacity: 0.3;
+  }
+}

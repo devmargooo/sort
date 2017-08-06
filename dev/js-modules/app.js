@@ -16,6 +16,8 @@
     function Element(value) {
         let el,
             leftInitial,
+            tempOffsetLeft = 0,
+            offsetLeft = 0,
             self = this;
 
         if (value == undefined) {
@@ -46,6 +48,9 @@
         this.select = function () {
             el.classList = "element--active";
         };
+        this.disactive = function () {
+            el.classList = "element--sorted";
+        }
 
         this.getLeftInitial = function () {
             return el.getBoundingClientRect().left;
@@ -55,7 +60,6 @@
             let promise = new Promise((resolve, reject) => {
 
                 leftInitial = self.getLeftInitial();
-                console.log('initial' + leftInitial);
 
                 let speed = 500;
 
@@ -64,6 +68,10 @@
                     let timePassed = Date.now() - start;
                     if (timePassed >= speed) {
                         clearInterval(timer);
+                        setTimeout(function () {
+                            offsetLeft = tempOffsetLeft;
+                        },10);
+                        tempOffsetLeft = 0;
                         resolve('result');
                     }
 
@@ -79,7 +87,6 @@
             let promise = new Promise((resolve, reject) => {
 
                 leftInitial = self.getLeftInitial();
-                console.log('initial' + leftInitial);
 
                 let speed = 500;
 
@@ -88,6 +95,10 @@
                     let timePassed = Date.now() - start;
                     if (timePassed >= speed) {
                         clearInterval(timer);
+                        setTimeout(function () {
+                            offsetLeft = tempOffsetLeft;
+                        },10);
+                        tempOffsetLeft = 0;
                         resolve('result');
                     }
 
@@ -102,24 +113,30 @@
         function drowMovingRight(timePassed, distance) {
 
             if (leftInitial === undefined) return;
-            let coord = distance*0.002*timePassed + 'px';
+            var coordValue = offsetLeft + distance*0.002*timePassed;
+            tempOffsetLeft = coordValue;
+            let coord =  coordValue + 'px';
             el.style.left = coord;
 
-        };
+        }
 
         function drowMovingLeft(timePassed, distance) {
 
             if (leftInitial === undefined) return;
-            let coord = -distance*0.002*timePassed + 'px';
-            console.log(coord);
+            var coordValue = offsetLeft - distance*0.002*timePassed;
+            tempOffsetLeft = coordValue;
+            let coord =  coordValue + 'px';
             el.style.left = coord;
-
         }
     }
 
     function Chain(length) {
+
+        if (length == 0) return;
+
         let numbers = [],
-            elements = [];
+            elements = [],
+            stopValue = length - 1;
         outer: for (let i = 0; i < length;){
             let number = randomInteger(MIN_VALUE, MAX_VALUE);
             for (let k = 0; k < numbers.length; k++){
@@ -128,6 +145,7 @@
             numbers.push(number);
             i++;
         }
+
         for (let i = 0; i < length; i ++){
             let el = new Element(numbers[i]);
             elements.push(el);
@@ -146,59 +164,114 @@
         }
         
         function bubble(index) {
-            let biggerLeft = elements[index].getLeftInitial();
-            let smallerLeft = elements[index + 1].getLeftInitial();
-            console.log(biggerLeft);
-            console.log(smallerLeft);
+            let promise = new Promise((resolve, reject) => {
+                console.log("BUBBLE");
 
-            if (biggerLeft >= smallerLeft) return;
+                let biggerLeft = elements[index].getLeftInitial();
+                let smallerLeft = elements[index + 1].getLeftInitial();
 
-            let distance = smallerLeft - biggerLeft;
-            elements[index].moveRight(distance);
-            elements[index+1].moveLeft(distance);
+                if (biggerLeft >= smallerLeft) return;
+
+                let distance = smallerLeft - biggerLeft;
+                let promise1 = elements[index].moveRight(distance);
+                let promise2 = elements[index+1].moveLeft(distance);
+
+                let temp = elements[index + 1];
+                elements[index + 1] = elements[index];
+                elements[index] = temp;
+
+                Promise.all([promise1, promise2])
+                    .then(
+                        result => {
+                            console.log("animation done!");
+                            resolve("result");
+                        },
+                        error => {
+                            console.log("Rejected: " + error);
+                        }
+                    )
+
+            });
+            return promise;
+
         }
-        
+
         function iterate(index) {
-            if (index >= length - 1) return;
+            if (index > stopValue) {
+                console.log("index is more than stopValue");
+                return;
+            }
+            if (stopValue <= 0 || length === 1) {
+                elements[0].disactive();
+                return;
+            }
+            console.log("start with index " + index);
             let promise = new Promise((resolve, reject) => {
 
                 let rejectTimer = setTimeout(() => {
                     console.log("reject");
-                    clearTimeout(resolveTimer);
                 }, 5000);
 
                 select(index);
                 if (elements[index].getValue() > elements[index + 1].getValue()){
-                    bubble(index);
+                    let promise = bubble(index)
+                        .then(
+                            result => {
+                                console.log("bubbling ok");
+                                clearTimeout(rejectTimer);
+                                index++;
+                                resolve("result");
+                            },
+                            error => {
+                                console.log("Rejected: " + error);
+                            }
+                        );
                     return;
-                    //console.log(elements[index].getValue() + ' > ' + elements[index + 1].getValue());
                 } else {
-                    console.log(elements[index].getValue() + ' <= ' + elements[index + 1].getValue());
+                    console.log("it's not bubble");
+                    clearTimeout(rejectTimer);
+                    index++;
+                    resolve("result");
                 }
 
-                clearTimeout(rejectTimer);
-                index++;
                 resolve("result");
 
             }).then(
                 result => {
-                    iterate(index);
+                    if (index >= stopValue) {
+                        clearSelection();
+                        elements[stopValue].disactive();
+                        stopValue--;
+                        console.log("stop");
+                        let iterationTimer = setTimeout(() => {
+                            iterate(0);
+                        }, 800);
+                    }
+                    let iterationTimer = setTimeout(() => {
+                        console.log('next iteration');
+                        iterate(index);
+                    }, 800);
                 },
                 error => {
                     console.log("Rejected: " + error);
                 }
             );
         }
-        this.test = function(){
-            iterate(0);
+        this.start = function(){
+
+            var timer = setTimeout(function () {
+                iterate(0);
+            }, 800);
         }
 
 
     }
 
-    let chain = new Chain(10);
-    var timer = setTimeout(function () {
-        chain.test();
-    }, 4000);
+    document.querySelector(".button").onclick = function () {
+        document.querySelector(".body-wrapper").innerHTML = "";
+        let chain = new Chain(12);
+        chain.start();
+    };
+
 
 })();

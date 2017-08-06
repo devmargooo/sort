@@ -19,6 +19,13 @@
   transition: all 0.8s;
 }
 
+.element--sorted{
+  @extend .element;
+  background: $c-secondary;
+  color: $c-primary;
+  transition: all 0.5s;
+}
+
 @keyframes appear {
   0% {opacity: 0;}
   100% {opacity: 0.6;}
