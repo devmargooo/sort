@@ -136,3 +136,7 @@ gulp.task('build', ['sass', 'scripts', 'img'], function() {
 
 gulp.task('default', ['watch', 'build', 'browser-sync']);
 
+gulp.task('githubpages', function () {
+    gulp.src('build/**/*')
+        .pipe(gulp.dest('docs'));
+});
